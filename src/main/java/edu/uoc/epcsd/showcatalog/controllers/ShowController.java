@@ -3,14 +3,19 @@ package edu.uoc.epcsd.showcatalog.controllers;
 import edu.uoc.epcsd.showcatalog.entities.Category;
 import edu.uoc.epcsd.showcatalog.entities.Performance;
 import edu.uoc.epcsd.showcatalog.entities.Show;
+import edu.uoc.epcsd.showcatalog.kafka.KafkaConstants;
 import edu.uoc.epcsd.showcatalog.repositories.ShowRepository;
 import lombok.extern.log4j.Log4j2;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Log4j2
 @RestController
@@ -32,9 +37,15 @@ public class ShowController {
 
     @PostMapping("/crear")
     @ResponseStatus(HttpStatus.OK)
-    public void crear(@RequestBody Show show) {
+    public ResponseEntity<Show> crear(@RequestBody Show show) {
         log.trace("getAllCategories");
-        showRepository.saveAndFlush(show);
+        Show showResult = showRepository.saveAndFlush(show);
+        if(Objects.nonNull(showResult)){
+            // Emitim el missatge per el stream de kafka
+            kafkaTemplate.send(KafkaConstants.SHOW_TOPIC + KafkaConstants.SEPARATOR + KafkaConstants.COMMAND_ADD, showResult);
+            return new ResponseEntity<>(showResult, HttpStatus.CREATED);
+        }
+        else throw new ResourceNotFoundException("operacio invalida, reviseu parametres");
     }
 
     @PostMapping("/destruir/{idShow}")
