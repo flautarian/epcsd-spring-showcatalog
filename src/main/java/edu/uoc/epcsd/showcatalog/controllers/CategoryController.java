@@ -4,6 +4,7 @@ import edu.uoc.epcsd.showcatalog.entities.Category;
 import edu.uoc.epcsd.showcatalog.entities.Show;
 import edu.uoc.epcsd.showcatalog.repositories.CategoryRepository;
 import edu.uoc.epcsd.showcatalog.repositories.ShowRepository;
+import javassist.tools.rmi.ObjectNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
@@ -30,53 +31,50 @@ public class CategoryController {
 
     @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
-    public List<Category> getAllCategories() {
+    public ResponseEntity<List<Category>> getAllCategories() {
         log.trace("getAllCategories");
-        return categoryRepository.findAll();
+        return new ResponseEntity<>(categoryRepository.findAll(), HttpStatus.OK);
     }
 
     @PostMapping("/crear")
     @ResponseStatus(HttpStatus.OK)
-    public Category crear(@RequestBody Category cat) {
-        log.trace("getAllCategories");
-        return categoryRepository.saveAndFlush(cat);
+    public ResponseEntity<Category> crear(@RequestBody Category cat) {
+        log.trace("Create category");
+        return new ResponseEntity<>(categoryRepository.saveAndFlush(cat), HttpStatus.CREATED);
     }
 
-    @PostMapping("/{idCat}/afegirShow")
+    @PostMapping("/{idCat}/afegirShow/{idShow}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Show> subscriure(@PathVariable Long idCat, @RequestBody Show show) {
+    public ResponseEntity<Show> subscriure(@PathVariable Long idCat, @PathVariable Long idShow) {
         log.trace("subscribint show");
         Show processedShow = categoryRepository.findById(idCat).map(category -> {
-            long showId = show.getId();
-
-            // tag is existed
-            if (showId != 0L) {
-                Show _show = showRepository.findById(showId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Not found Show with id = " + showId));
+            if (Objects.nonNull(idShow) && idShow != 0L) {
+                Show _show = showRepository.findById(idShow)
+                        .orElseThrow(() -> new ResourceNotFoundException("Not found Show with id = " + idShow));
                 category.addShow(_show);
                 categoryRepository.save(category);
                 return _show;
             }
-
-            // add and create new Tag
-            category.addShow(show);
-            return showRepository.save(show);
-        }).orElseThrow(() -> new ResourceNotFoundException("Not found Tutorial with id = " + idCat));
+            else throw new ResourceNotFoundException("Invalid show with id = " + idCat);
+        }).orElseThrow(() -> new ResourceNotFoundException("Not found category with id = " + idCat));
         return new ResponseEntity<>(processedShow, HttpStatus.CREATED);
     }
 
-    @PostMapping("/destruir/{idCat}")
+    @DeleteMapping("/destruir/{idCat}")
     @ResponseStatus(HttpStatus.OK)
-    public void destruir(@PathVariable Long idCat) {
+    public ResponseEntity<String> destruir(@PathVariable Long idCat) {
         log.trace("delete category : " + idCat);
         categoryRepository.deleteById(idCat);
+        return new ResponseEntity<>("Categoria eliminada correctament", HttpStatus.OK);
     }
 
     @GetMapping(path = "/consulta/{idCat}", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    public Category consulta(@PathVariable Long idCat) {
+    public ResponseEntity<Category> consulta(@PathVariable Long idCat) throws ObjectNotFoundException {
         log.trace("getting category : " + idCat);
-        return categoryRepository.getById(idCat);
+        Category categoryResult = categoryRepository.findById(idCat).orElse(null);
+        if(Objects.nonNull(categoryResult))return new ResponseEntity<>(categoryResult, HttpStatus.OK);
+        else throw new ObjectNotFoundException("categoria no trobada");
     }
 
     @GetMapping(path = "/shows/{idCat}", produces = "application/json")

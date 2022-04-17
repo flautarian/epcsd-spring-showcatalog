@@ -2,6 +2,7 @@ package edu.uoc.epcsd.showcatalog.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.CollectionId;
 
 import javax.persistence.*;
 import java.util.*;
@@ -43,9 +44,9 @@ public class Show {
     @Column(name = "status")
     private String status;
 
-    @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "show")
-    private Set<Performance> performances = new HashSet<>();
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name="performance", joinColumns = @JoinColumn(name = "showid"))
+    private List<Performance> performances;
 
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = {CascadeType.PERSIST,

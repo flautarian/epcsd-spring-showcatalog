@@ -1,31 +1,35 @@
 package edu.uoc.epcsd.showcatalog.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import edu.uoc.epcsd.showcatalog.deserializers.SqlTimeDeserializer;
 import lombok.*;
+import org.hibernate.annotations.Immutable;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Time;
 import java.util.Date;
 import java.util.List;
 
-@Entity
 @ToString
 @Getter
 @Setter
-@EqualsAndHashCode
-@Builder
+@Immutable
 @NoArgsConstructor
 @AllArgsConstructor
-public class Performance {
+@Embeddable
+public class Performance implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    @JsonFormat(pattern = "dd/MM/YYYY")
     @Column(name = "date")
     private Date date;
 
+    @JsonFormat(pattern = "HH:mm")
+    @JsonDeserialize(using = SqlTimeDeserializer.class)
     @Column(name = "time")
     private Time time;
+
 
     @Column(name = "streamingurl")
     private String streamingUrl;
@@ -35,9 +39,5 @@ public class Performance {
 
     @Column(name = "status")
     private String status;
-
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "showid", nullable = false, updatable = false)
-    private Show show;
 
 }
