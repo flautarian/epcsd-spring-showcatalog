@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.sql.Time;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @ToString
 @Getter
@@ -21,7 +22,7 @@ import java.util.List;
 @Embeddable
 public class Performance implements Serializable {
 
-    @JsonFormat(pattern = "dd/MM/YYYY")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy", timezone = "Europe/Madrid")
     @Column(name = "date")
     private Date date;
 
@@ -29,7 +30,6 @@ public class Performance implements Serializable {
     @JsonDeserialize(using = SqlTimeDeserializer.class)
     @Column(name = "time")
     private Time time;
-
 
     @Column(name = "streamingurl")
     private String streamingUrl;
@@ -40,4 +40,16 @@ public class Performance implements Serializable {
     @Column(name = "status")
     private String status;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Performance that = (Performance) o;
+        return Objects.equals(date, that.date) && Objects.equals(time, that.time) && Objects.equals(streamingUrl, that.streamingUrl) && Objects.equals(remainingSeats, that.remainingSeats) && Objects.equals(status, that.status);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(date, time, streamingUrl, remainingSeats, status);
+    }
 }

@@ -45,7 +45,7 @@ public class CategoryController {
 
     @PostMapping("/{idCat}/afegirShow/{idShow}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Show> subscriure(@PathVariable Long idCat, @PathVariable Long idShow) {
+    public ResponseEntity<Show> afegirShow(@PathVariable Long idCat, @PathVariable Long idShow) {
         log.trace("subscribint show");
         Show processedShow = categoryRepository.findById(idCat).map(category -> {
             if (Objects.nonNull(idShow) && idShow != 0L) {
@@ -73,8 +73,7 @@ public class CategoryController {
     public ResponseEntity<Category> consulta(@PathVariable Long idCat) throws ObjectNotFoundException {
         log.trace("getting category : " + idCat);
         Category categoryResult = categoryRepository.findById(idCat).orElse(null);
-        if(Objects.nonNull(categoryResult))return new ResponseEntity<>(categoryResult, HttpStatus.OK);
-        else throw new ObjectNotFoundException("categoria no trobada");
+        return new ResponseEntity<>(categoryResult, HttpStatus.OK);
     }
 
     @GetMapping(path = "/shows/{idCat}", produces = "application/json")

@@ -6,9 +6,11 @@ import edu.uoc.epcsd.showcatalog.repositories.ShowRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.PathParam;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,13 +24,13 @@ public class PerformanceController {
     @Autowired
     private KafkaTemplate<String, Show> kafkaTemplate;
 
-    @GetMapping("/{idShow}/")
+    @GetMapping("/performances/")
     @ResponseStatus(HttpStatus.OK)
-    public List<Performance> getAllPerformancesFromShow(@PathVariable Long idShow) {
+    public ResponseEntity<List<Performance>> getAllPerformancesFromShow(@PathParam("idShow") Long idShow) {
         Show showResult = showRepository.findById(idShow).orElse(null);
         if(Objects.nonNull(showResult))
-            return showResult.getPerformances();
-        return null;
+            return new ResponseEntity<>(showResult.getPerformances(), HttpStatus.OK);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
 }

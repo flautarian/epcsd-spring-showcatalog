@@ -2,15 +2,11 @@ package edu.uoc.epcsd.showcatalog.repositories;
 
 import edu.uoc.epcsd.showcatalog.entities.Show;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.http.ResponseEntity;
-
-import java.sql.ResultSet;
 import java.util.List;
 
 public interface ShowRepository extends JpaRepository<Show, Long> {
+    public List<Show> findFirstByName(String name);
 
-    /*public ResponseEntity<List<Show>> findByShowName(String showName);
-
-    public ResponseEntity<List<Show>> findByShowCategory(String category);*/
+    public List<Show> findByCategoriesIdIn(List<Long> categoryIdList);
 
 }
