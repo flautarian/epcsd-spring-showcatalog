@@ -1,11 +1,9 @@
 package edu.uoc.epcsd.showcatalog.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.uoc.epcsd.showcatalog.pojos.ShowData;
 import lombok.*;
 import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.*;
@@ -53,7 +51,6 @@ public class Show {
     @CollectionTable(name="performance", joinColumns = @JoinColumn(name = "showid"))
     private List<Performance> performances;
 
-    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = {CascadeType.PERSIST,
                     CascadeType.MERGE})
@@ -62,7 +59,19 @@ public class Show {
             joinColumns = @JoinColumn(name = "id_show"),
             inverseJoinColumns = @JoinColumn(name = "id_category")
     )
-    private Set<Category> categories = new HashSet<>();
+    private List<Category> categories;
+
+    public Show(ShowData show) {
+        this.name = show.getName();
+        this.description = show.getDescription();
+        this.image = show.getImage();
+        this.price = show.getPrice();
+        this.duration = show.getDuration();
+        this.capacity = show.getCapacity();
+        this.onSaleDate = show.getOnSaleDate();
+        this.status = show.getStatus();
+        this.categories = new ArrayList<>();
+    }
 
     @Override
     public boolean equals(Object o) {

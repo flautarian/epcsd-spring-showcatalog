@@ -26,11 +26,11 @@ public class PerformanceController {
 
     @GetMapping("/performances/")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<Performance>> getAllPerformancesFromShow(@PathParam("idShow") Long idShow) {
+    public ResponseEntity getAllPerformancesFromShow(@PathParam("idShow") Long idShow) {
         Show showResult = showRepository.findById(idShow).orElse(null);
         if(Objects.nonNull(showResult))
             return new ResponseEntity<>(showResult.getPerformances(), HttpStatus.OK);
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return new ResponseEntity<>("no s'han trobat performances en el show donat", HttpStatus.OK);
     }
 
 }

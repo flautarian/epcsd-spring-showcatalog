@@ -1,11 +1,12 @@
 package edu.uoc.epcsd.showcatalog.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.uoc.epcsd.showcatalog.pojos.CategoryData;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,7 +17,9 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
+public class Category implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +36,11 @@ public class Category {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             mappedBy = "categories")
     private Set<Show> shows = new HashSet<>();
+
+    public Category(CategoryData cat) {
+        this.name = cat.getName();
+        this.description = cat.getDescription();
+    }
 
     // getters and setters
     public void addShow(Show show) {
