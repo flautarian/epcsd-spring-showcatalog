@@ -9,6 +9,7 @@ import javassist.tools.rmi.ObjectNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,9 +70,12 @@ public class CategoryController {
     @DeleteMapping("/destruir/{idCat}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity destruir(@PathVariable Long idCat) {
-        log.trace("delete category : " + idCat);
-        categoryRepository.deleteById(idCat);
-        return new ResponseEntity<>("Categoria eliminada correctament", HttpStatus.OK);
+        try{
+            categoryRepository.deleteById(idCat);
+            return new ResponseEntity<>("Categoria eliminada correctament", HttpStatus.OK);
+        }catch(EmptyResultDataAccessException e){
+            return new ResponseEntity<>("Error: Categoria no existent", HttpStatus.OK);
+        }
     }
 
     @GetMapping(path = "/consulta/{idCat}", produces = "application/json")
@@ -79,7 +83,7 @@ public class CategoryController {
     public ResponseEntity consulta(@PathVariable Long idCat) throws ObjectNotFoundException {
         log.trace("getting category : " + idCat);
         Category categoryResult = categoryRepository.findById(idCat).orElse(null);
-        return new ResponseEntity<>(categoryResult, HttpStatus.OK);
+        return new ResponseEntity<>(Objects.nonNull(categoryResult)? categoryResult : "Categoria no trobada", HttpStatus.OK);
     }
 
     @GetMapping(path = "/shows/{idCat}", produces = "application/json")

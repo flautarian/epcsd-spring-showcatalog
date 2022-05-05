@@ -11,6 +11,7 @@ import javassist.tools.rmi.ObjectNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -47,14 +48,14 @@ public class ShowController {
             showResults = Objects.nonNull(idShow) ? Arrays.asList(showRepository.findById(idShow).orElse(null)) :
                     Objects.nonNull(showName) ? showRepository.findFirstByName(showName) :
                             Objects.nonNull(idCategories) ? showRepository.findByCategoriesIdIn(idCategories) :
-                                    null;
+                                    showRepository.findAll();
         }
-        return new ResponseEntity<>(showResults, HttpStatus.OK);
+        return new ResponseEntity<>(Objects.nonNull(showResults) && !showResults.isEmpty() ? showResults : "Show no trobat", HttpStatus.OK);
     }
 
     @PostMapping("/crear")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity crear(@RequestBody ShowData show) {
+    public ResponseEntity crearShow(@RequestBody ShowData show) {
         Show newShow = new Show(show);
         processarCategories(show, newShow);
         Show newShowResult = showRepository.saveAndFlush(newShow);
@@ -69,14 +70,17 @@ public class ShowController {
     @DeleteMapping("/destruir/{idShow}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity destruir(@PathVariable Long idShow) {
-        log.trace("delete show : " + idShow);
-        showRepository.deleteById(idShow);
-        return new ResponseEntity<>("Show eliminat", HttpStatus.CREATED);
+        try{
+            showRepository.deleteById(idShow);
+            return new ResponseEntity<>("Show eliminat", HttpStatus.OK);
+        }catch(EmptyResultDataAccessException e){
+            return new ResponseEntity<>("Error: Show no existent", HttpStatus.OK);
+        }
     }
 
     @PostMapping("/{idShow}/crearActuacio")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity crear(@PathVariable Long idShow ,@RequestBody Performance performance) {
+    public ResponseEntity crearActuacio(@PathVariable Long idShow ,@RequestBody Performance performance) {
         if(Objects.nonNull(idShow) && idShow != 0L){
             Show show = showRepository.findById(idShow).orElse(null);
             if(Objects.nonNull(show)){
@@ -128,6 +132,6 @@ public class ShowController {
             else
                 return new ResponseEntity<>("operacio invalida, actuacio inexistent en el show proporcionat", HttpStatus.OK);
         }
-        return new ResponseEntity<>("operacio invalida, show o actuacio inexistents", HttpStatus.OK);
+        return new ResponseEntity<>("operacio invalida, show inexistent", HttpStatus.OK);
     }
 }
