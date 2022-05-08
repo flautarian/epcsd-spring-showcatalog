@@ -18,6 +18,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
@@ -33,29 +34,21 @@ public class ShowController {
     @Autowired
     private KafkaTemplate<String, Show> kafkaTemplate;
 
-    @GetMapping("/")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Show> getAllShows() {
-        log.trace("getAllShows");
-        return showRepository.findAll();
-    }
-
     @GetMapping(path = "/consulta", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity consulta(@RequestParam(required = false) Long idShow, @RequestParam(required = false) String showName, @RequestParam(required = false) List<Long> idCategories) throws ObjectNotFoundException {
-        List<Show> showResults = null;
-        if(Objects.nonNull(idShow) || Objects.nonNull(showName) || Objects.nonNull(idCategories)){
-            showResults = Objects.nonNull(idShow) ? Arrays.asList(showRepository.findById(idShow).orElse(null)) :
+        log.trace("Executant endpoint: 'Consulta de shows per nom' | 'Consulta de shows per categoria' | 'Consulta de detall d'un show'");
+        List<Show> showResults = Objects.nonNull(idShow) ? Arrays.asList(showRepository.findById(idShow).orElse(null)).stream().filter(s -> (s != null)).collect(Collectors.toList()) :
                     Objects.nonNull(showName) ? showRepository.findFirstByName(showName) :
                             Objects.nonNull(idCategories) ? showRepository.findByCategoriesIdIn(idCategories) :
                                     showRepository.findAll();
-        }
         return new ResponseEntity<>(Objects.nonNull(showResults) && !showResults.isEmpty() ? showResults : "Show no trobat", HttpStatus.OK);
     }
 
     @PostMapping("/crear")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity crearShow(@RequestBody ShowData show) {
+        log.trace("Executant endpoint: 'Crear acte'");
         Show newShow = new Show(show);
         processarCategories(show, newShow);
         Show newShowResult = showRepository.saveAndFlush(newShow);
@@ -70,6 +63,7 @@ public class ShowController {
     @DeleteMapping("/destruir/{idShow}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity destruir(@PathVariable Long idShow) {
+        log.trace("Executant endpoint: 'Eliminar acte'");
         try{
             showRepository.deleteById(idShow);
             return new ResponseEntity<>("Show eliminat", HttpStatus.OK);
@@ -81,6 +75,7 @@ public class ShowController {
     @PostMapping("/{idShow}/crearActuacio")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity crearActuacio(@PathVariable Long idShow ,@RequestBody Performance performance) {
+        log.trace("Executant endpoint: 'Crear actuació'");
         if(Objects.nonNull(idShow) && idShow != 0L){
             Show show = showRepository.findById(idShow).orElse(null);
             if(Objects.nonNull(show)){
@@ -100,6 +95,7 @@ public class ShowController {
     @GetMapping("/{idShow}/llistarActuacions")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity llistarActuacions(@PathVariable("idShow") Long idShow) {
+        log.trace("Executant endpoint: 'Consulta d'actuacions d'un show'");
         Show showResult = showRepository.findById(idShow).orElse(null);
         if(Objects.nonNull(showResult))
             return new ResponseEntity<>(showResult.getPerformances(), HttpStatus.OK);
@@ -110,7 +106,7 @@ public class ShowController {
         if(Objects.nonNull(show.getIdCategories())){
             show.getIdCategories().stream().forEach(catId -> {
                 if(Objects.nonNull(catId) && Objects.nonNull(catId)){
-                    Category c = categoryRepository.getById(catId);
+                    Category c = categoryRepository.findById(catId).orElse(null);
                     if(Objects.nonNull(c)){
                         c.addShow(newShow);
                     }
@@ -122,6 +118,7 @@ public class ShowController {
     @DeleteMapping("/{idShow}/destruirActuacio")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity destruirActuacio(@PathVariable Long idShow, @RequestBody Performance performance) {
+        log.trace("Executant endpoint: 'Eliminar actuació'");
         Show show = showRepository.findById(idShow).orElse(null);
         log.trace("delete performance from: " + idShow);
         if(Objects.nonNull(show) && Objects.nonNull(show.getPerformances())){

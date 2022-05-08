@@ -29,17 +29,10 @@ public class CategoryController {
     @Autowired
     private ShowRepository showRepository;
 
-    @GetMapping("/")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity getAllCategories() {
-        log.trace("getAllCategories");
-        return new ResponseEntity<>(categoryRepository.findAll(), HttpStatus.OK);
-    }
-
     @PostMapping("/crear")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity crear(@RequestBody CategoryData cat) {
-        log.trace("Create category");
+        log.trace("Executant endpoint: 'Crear categoria'");
         Category newCategory = new Category(cat);
         return new ResponseEntity<>(categoryRepository.saveAndFlush(newCategory), HttpStatus.CREATED);
     }
@@ -47,7 +40,7 @@ public class CategoryController {
     @PostMapping("/{idCat}/afegirShow/{idShow}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity afegirShow(@PathVariable Long idCat, @PathVariable Long idShow) {
-        log.trace("subscribint show");
+        log.trace("Executant endpoint: 'Afegir acte a categoria'");
         try{
             Show processedShow = categoryRepository.findById(idCat).map(category -> {
                 if (Objects.nonNull(idShow) && idShow != 0L) {
@@ -70,6 +63,7 @@ public class CategoryController {
     @DeleteMapping("/destruir/{idCat}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity destruir(@PathVariable Long idCat) {
+        log.trace("Executant endpoint: 'Eliminar categoria'");
         try{
             categoryRepository.deleteById(idCat);
             return new ResponseEntity<>("Categoria eliminada correctament", HttpStatus.OK);
@@ -78,21 +72,14 @@ public class CategoryController {
         }
     }
 
-    @GetMapping(path = "/consulta/{idCat}", produces = "application/json")
+    @GetMapping(path = "/consulta", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity consulta(@PathVariable Long idCat) throws ObjectNotFoundException {
-        log.trace("getting category : " + idCat);
-        Category categoryResult = categoryRepository.findById(idCat).orElse(null);
-        return new ResponseEntity<>(Objects.nonNull(categoryResult)? categoryResult : "Categoria no trobada", HttpStatus.OK);
-    }
-
-    @GetMapping(path = "/shows/{idCat}", produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
-    public Set<Show> consultaShows(@PathVariable Long idCat) {
-        log.trace("getting category shows of category : " + idCat);
-        Category categoria = categoryRepository.getById(idCat);
-        if(categoria!= null)
-                return categoria.getShows();
-        return null;
+    public ResponseEntity consulta(@RequestParam(required = false) Long idCat) throws ObjectNotFoundException {
+        log.trace("Executant endpoint: 'Consulta de categories'");
+        if(Objects.nonNull(idCat)){
+            Category categoryResult = categoryRepository.findById(idCat).orElse(null);
+            return new ResponseEntity<>(Objects.nonNull(categoryResult)? categoryResult : "Categoria no trobada", HttpStatus.OK);
+        }
+        return new ResponseEntity<>(categoryRepository.findAll(), HttpStatus.OK);
     }
 }
