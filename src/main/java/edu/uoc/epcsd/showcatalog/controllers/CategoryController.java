@@ -5,6 +5,8 @@ import edu.uoc.epcsd.showcatalog.pojos.CategoryData;
 import edu.uoc.epcsd.showcatalog.entities.Show;
 import edu.uoc.epcsd.showcatalog.repositories.CategoryRepository;
 import edu.uoc.epcsd.showcatalog.repositories.ShowRepository;
+import edu.uoc.epcsd.showcatalog.services.CategoryService;
+import edu.uoc.epcsd.showcatalog.services.ShowService;
 import javassist.tools.rmi.ObjectNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
@@ -24,17 +26,16 @@ import java.util.Set;
 public class CategoryController {
 
     @Autowired
-    private CategoryRepository categoryRepository;
+    private CategoryService categoryService;
 
     @Autowired
-    private ShowRepository showRepository;
+    private ShowService showService;
 
     @PostMapping("/crear")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity crear(@RequestBody CategoryData cat) {
         log.trace("Executant endpoint: 'Crear categoria'");
-        Category newCategory = new Category(cat);
-        return new ResponseEntity<>(categoryRepository.saveAndFlush(newCategory), HttpStatus.CREATED);
+        return new ResponseEntity<>(categoryService.crearCategoria(cat), HttpStatus.CREATED);
     }
 
     @PostMapping("/{idCat}/afegirShow/{idShow}")
@@ -42,21 +43,15 @@ public class CategoryController {
     public ResponseEntity afegirShow(@PathVariable Long idCat, @PathVariable Long idShow) {
         log.trace("Executant endpoint: 'Afegir acte a categoria'");
         try{
-            Show processedShow = categoryRepository.findById(idCat).map(category -> {
-                if (Objects.nonNull(idShow) && idShow != 0L) {
-                    Show _show = showRepository.findById(idShow)
-                            .orElseThrow(() -> new ResourceNotFoundException("Not found Show with id = " + idShow));
-                    category.addShow(_show);
-                    categoryRepository.save(category);
-                    return _show;
-                }
-                else throw new ResourceNotFoundException("Invalid show with id = " + idCat);
-            }).orElseThrow(() -> new ResourceNotFoundException("Not found category with id = " + idCat));
-            return new ResponseEntity<>(processedShow, HttpStatus.CREATED);
+            if (Objects.nonNull(idShow) && idShow != 0L && Objects.nonNull(idCat) && idCat != 0L) {
+                categoryService.afegirShow(idCat, idShow);
+                return new ResponseEntity("Show " + idShow + " afegit a la categoria " + idCat, HttpStatus.OK);
+            }
+            else return new ResponseEntity("Error, reviseu parametres", HttpStatus.OK);
         }
         catch(Exception e){
             e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.OK);
+            return new ResponseEntity<>("Error, " + e.getMessage(), HttpStatus.OK);
         }
     }
 
@@ -64,12 +59,10 @@ public class CategoryController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity destruir(@PathVariable Long idCat) {
         log.trace("Executant endpoint: 'Eliminar categoria'");
-        try{
-            categoryRepository.deleteById(idCat);
+        if(categoryService.destruirCategoria(idCat)){
             return new ResponseEntity<>("Categoria eliminada correctament", HttpStatus.OK);
-        }catch(EmptyResultDataAccessException e){
-            return new ResponseEntity<>("Error: Categoria no existent", HttpStatus.OK);
         }
+        else return new ResponseEntity<>("Error: Categoria no existent", HttpStatus.OK);
     }
 
     @GetMapping(path = "/consulta", produces = "application/json")
@@ -77,9 +70,9 @@ public class CategoryController {
     public ResponseEntity consulta(@RequestParam(required = false) Long idCat) throws ObjectNotFoundException {
         log.trace("Executant endpoint: 'Consulta de categories'");
         if(Objects.nonNull(idCat)){
-            Category categoryResult = categoryRepository.findById(idCat).orElse(null);
-            return new ResponseEntity<>(Objects.nonNull(categoryResult)? categoryResult : "Categoria no trobada", HttpStatus.OK);
+            Category categoria = categoryService.consultaCategoria(idCat);
+            return new ResponseEntity<>(Objects.nonNull(categoria) ? categoria : "Categoria no trobada", HttpStatus.OK);
         }
-        return new ResponseEntity<>(categoryRepository.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.consultaTotesCategories(), HttpStatus.OK);
     }
 }
