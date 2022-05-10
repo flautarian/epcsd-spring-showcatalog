@@ -1,0 +1,102 @@
+
+create table category
+(
+    id SERIAL PRIMARY KEY,
+    name   text default '',
+    description   text default ''
+);
+
+create table show
+(
+    id SERIAL PRIMARY KEY,
+    name   text default '',
+    description   text default '',
+    image text default '',
+    price float  default 0.0,
+    duration int  default 0,
+    capacity int  default 0,
+    onSaleDate      date not null,
+    status           text default '',
+    categoryId bigint default null,
+    constraint category_fk
+        foreign key (categoryId) references category
+);
+
+create table show_categories
+(
+    id_show     bigint not null,
+    id_category bigint not null
+);
+
+create table performance
+(
+    id SERIAL PRIMARY KEY,
+    date             date not null,
+    time             time not null,
+    streamingUrl   text default '',
+    remainingSeats int  default 0,
+    status           text default '',
+    showId bigint not null,
+    constraint show_fk
+        foreign key (showId) references show
+);
+
+
+create table usuari
+(
+    id SERIAL PRIMARY KEY,
+    date      date not null,
+    email   text default '',
+    password   text default '',
+    fullName   text default '',
+    mobileNumber   text default ''
+);
+
+create table favorite
+(
+    id SERIAL PRIMARY KEY,
+    categoryId bigint not null,
+    constraint category_fk
+        foreign key (categoryId) references category,
+    userId bigint not null,
+    constraint user_fk
+        foreign key (userId) references usuari
+);
+
+create table ordre
+(
+    id SERIAL PRIMARY KEY,
+    code text not null,
+    date date not null,
+    totalPrice float not null,
+    status text not null,
+    userId bigint not null,
+    constraint user_fk
+        foreign key (userId) references usuari
+);
+
+create table reservation
+(
+    id SERIAL PRIMARY KEY,
+    numberOfSeats int not null default 0,
+    orderId bigint not null,
+    constraint order_fk
+        foreign key (orderId) references ordre,
+    performanceId bigint not null,
+    constraint performace_fk
+        foreign key (performanceId) references performance
+);
+
+create table review
+(
+    id SERIAL PRIMARY KEY,
+    date      date not null,
+    comment   text default '',
+    performanceId bigint not null,
+    constraint performance_fk
+        foreign key (performanceId) references performance,
+    userId bigint not null,
+    constraint user_fk
+        foreign key (userId) references usuari
+);
+commit;
