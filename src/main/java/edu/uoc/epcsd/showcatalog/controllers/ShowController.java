@@ -109,7 +109,7 @@ public class ShowController {
         if(Objects.nonNull(idShow) && idShow != 0L && Objects.nonNull(performance)){
             try {
                 showService.destruirActuacio(idShow, performance);
-                return new ResponseEntity<>("actuacio creada correctament", HttpStatus.OK);
+                return new ResponseEntity<>("actuacio eliminada correctament", HttpStatus.OK);
             } catch (Exception e) {
                 return new ResponseEntity<>("error: " + e.getMessage(), HttpStatus.OK);
             }

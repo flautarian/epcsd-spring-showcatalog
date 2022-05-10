@@ -1,7 +1,10 @@
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\kafka\KafkaTopicConfig.java
+D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\services\CategoryService.java
+D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\services\impl\CategoryServiceImpl.java
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\ShowCatalogApplication.java
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\entities\Show.java
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\entities\Category.java
+D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\services\impl\ShowServiceImpl.java
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\repositories\CategoryRepository.java
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\entities\Performance.java
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\repositories\PerformanceRepository.java
@@ -11,5 +14,6 @@ D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\pojos\ShowData.java
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\kafka\KafkaConstants.java
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\repositories\ShowRepository.java
+D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\services\ShowService.java
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\controllers\CategoryController.java
 D:\UOC\Enginyeria del Programari de components i sistemes distribuits\PRAC2\show-catalog\src\main\java\edu\uoc\epcsd\showcatalog\kafka\KafkaProducerConfig.java

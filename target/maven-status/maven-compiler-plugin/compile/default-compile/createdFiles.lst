@@ -1,4 +1,5 @@
 edu\uoc\epcsd\showcatalog\controllers\ShowController.class
+edu\uoc\epcsd\showcatalog\services\impl\ShowServiceImpl.class
 edu\uoc\epcsd\showcatalog\deserializers\SqlTimeDeserializer.class
 edu\uoc\epcsd\showcatalog\kafka\KafkaConstants.class
 edu\uoc\epcsd\showcatalog\controllers\CategoryController.class
@@ -14,4 +15,7 @@ edu\uoc\epcsd\showcatalog\kafka\KafkaTopicConfig.class
 edu\uoc\epcsd\showcatalog\entities\Performance.class
 edu\uoc\epcsd\showcatalog\kafka\KafkaProducerConfig.class
 edu\uoc\epcsd\showcatalog\repositories\PerformanceRepository.class
+edu\uoc\epcsd\showcatalog\services\impl\CategoryServiceImpl.class
+edu\uoc\epcsd\showcatalog\services\CategoryService.class
+edu\uoc\epcsd\showcatalog\services\ShowService.class
 edu\uoc\epcsd\showcatalog\pojos\CategoryData.class
