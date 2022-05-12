@@ -27,9 +27,12 @@ public class CategoryServiceImpl implements CategoryService {
         try{
             Category category = categoryRepository.findById(idCat).orElse(null);
             Show show = showRepository.findById(idShow).orElse(null);
-
             if(Objects.isNull(category))throw new Exception("Categoria no trobada");
             if(Objects.isNull(show)) throw new Exception("Show no trobat");
+            if(Objects.nonNull(category.getShows()) && !category.getShows().isEmpty()){
+                if(category.getShows().stream().anyMatch(s->s.getName().equals(show.getName())))
+                    throw new Exception("La categoria ja conte un show amb el mateix nom");
+            }
 
             category.addShow(show);
             categoryRepository.saveAndFlush(category);
@@ -55,14 +58,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category crearCategoria(CategoryData catData) {
-        try{
-            Category newCategory = new Category(catData);
-            return categoryRepository.saveAndFlush(newCategory);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }
+        Category newCategory = new Category(catData);
+        return categoryRepository.saveAndFlush(newCategory);
     }
 
     @Override

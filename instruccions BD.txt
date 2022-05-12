@@ -6,6 +6,9 @@ create table category
     description   text default ''
 );
 
+create unique index category_name_uindex
+    on category (name);
+
 create table show
 (
     id SERIAL PRIMARY KEY,

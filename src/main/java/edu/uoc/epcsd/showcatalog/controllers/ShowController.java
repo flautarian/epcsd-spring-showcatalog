@@ -54,13 +54,19 @@ public class ShowController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity crearShow(@RequestBody ShowData showData) {
         log.trace("Executant endpoint: 'Crear acte'");
-        Show newShow = showService.crearShow(showData);
-        if(Objects.nonNull(newShow)){
-            // Emitim el missatge per el stream de kafka
-            kafkaTemplate.send(KafkaConstants.SHOW_TOPIC + KafkaConstants.SEPARATOR + KafkaConstants.COMMAND_ADD, newShow);
-            return new ResponseEntity<>(newShow, HttpStatus.CREATED);
+        try {
+            Show newShow = null;
+            newShow = showService.crearShow(showData);
+            if(Objects.nonNull(newShow)){
+                // Emitim el missatge per el stream de kafka
+                kafkaTemplate.send(KafkaConstants.SHOW_TOPIC + KafkaConstants.SEPARATOR + KafkaConstants.COMMAND_ADD, newShow);
+                return new ResponseEntity<>(newShow, HttpStatus.CREATED);
+            }
+            else return new ResponseEntity<>("operacio invalida, reviseu parametres", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.OK);
         }
-        else return new ResponseEntity<>("operacio invalida, reviseu parametres", HttpStatus.OK);
     }
 
     @DeleteMapping("/destruir/{idShow}")
@@ -86,7 +92,7 @@ public class ShowController {
                 showService.crearActuacio(idShow, performance);
                 return new ResponseEntity<>("actuacio creada correctament", HttpStatus.OK);
             } catch (Exception e) {
-                return new ResponseEntity<>("error: " + e.getMessage(), HttpStatus.OK);
+                return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.OK);
             }
         }
         return new ResponseEntity<>("operacio invalida, reviseu parametres", HttpStatus.OK);

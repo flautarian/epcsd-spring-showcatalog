@@ -35,7 +35,13 @@ public class CategoryController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity crear(@RequestBody CategoryData cat) {
         log.trace("Executant endpoint: 'Crear categoria'");
-        return new ResponseEntity<>(categoryService.crearCategoria(cat), HttpStatus.CREATED);
+        try{
+            return new ResponseEntity<>(categoryService.crearCategoria(cat), HttpStatus.OK);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.OK);
+        }
     }
 
     @PostMapping("/{idCat}/afegirShow/{idShow}")

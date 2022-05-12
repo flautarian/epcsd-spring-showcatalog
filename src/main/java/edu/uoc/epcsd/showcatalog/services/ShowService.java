@@ -10,7 +10,7 @@ public interface ShowService {
 
     public boolean destruirShow(Long idShow);
 
-    public Show crearShow(ShowData showData);
+    public Show crearShow(ShowData showData) throws Exception;
 
     public Show consultaShow(Long idShow);
 

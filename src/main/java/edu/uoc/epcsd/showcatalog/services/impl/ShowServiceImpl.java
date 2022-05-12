@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class ShowServiceImpl implements ShowService {
@@ -38,17 +39,17 @@ public class ShowServiceImpl implements ShowService {
     }
 
     @Override
-    public Show crearShow(ShowData showData) {
-        try{
+    public Show crearShow(ShowData showData) throws Exception {
             Show show = new Show(showData);
             processarCategories(showData, show);
+            if(Objects.nonNull(showData.getIdCategories()) && !showData.getIdCategories().isEmpty()){
+                List<Show> showsCat = showRepository.findByCategoriesIdIn(showData.getIdCategories());
+                if(Objects.nonNull(showsCat) && !showsCat.isEmpty()) {
+                    if(showsCat.stream().anyMatch(s->s.getName().equals(show.getName())))
+                        throw new Exception("La categoria ja conte un show amb el mateix nom");
+                }
+            }
             return showRepository.saveAndFlush(show);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }
-
     }
 
     @Override
@@ -73,24 +74,17 @@ public class ShowServiceImpl implements ShowService {
 
     @Override
     public boolean crearActuacio(Long idShow, Performance performance) throws Exception {
-        try{
-            Show show = consultaShow(idShow);
-            if(Objects.nonNull(show)){
-                if(Objects.isNull(show.getPerformances()))show.setPerformances(new ArrayList<Performance>());
-                if(show.getPerformances().indexOf(performance) < 0){
-                    show.getPerformances().add(performance);
-                    showRepository.saveAndFlush(show);
-                    return true;
-                }
-                else throw new Exception("operacio invalida, actuacio existent");
+        Show show = consultaShow(idShow);
+        if(Objects.nonNull(show)){
+            if(Objects.isNull(show.getPerformances()))show.setPerformances(new ArrayList<Performance>());
+            if(show.getPerformances().indexOf(performance) < 0){
+                show.getPerformances().add(performance);
+                showRepository.saveAndFlush(show);
+                return true;
             }
-            else throw new Exception("operacio invalida, show inexistent");
+            else throw new Exception("operacio invalida, actuacio existent");
         }
-        catch (Exception e){
-            e.printStackTrace();
-            throw e;
-        }
-
+        else throw new Exception("operacio invalida, show inexistent");
     }
 
     @Override
